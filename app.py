@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from scraper import scrape_reddit_post
+from analyser import analyse_comments_sentiment
 
 
 st.set_page_config(page_title="ReddMind", layout="centered")
@@ -36,10 +37,27 @@ if st.button("Analyse"):
                 st.success(f"Analysis complete for {data['post_title']}")
                 st.info(f"Fetched {len(data['comments'])} comments.")
 
-                # Use dataframe to display comments
-                df = pd.DataFrame(data["comments"], columns=["Comments Text"])
+                sentiment_summary = analyse_comments_sentiment(data["comments"])
 
-                st.subheader("Comments Data")
-                st.write(f"Displaying up to {len(df)} comments:")
+                # Display sentiment analysis metrics
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Verdict", sentiment_summary["verdict"])
+                col2.metric("Positive Comments", sentiment_summary["positive_count"])
+                col3.metric("Negative Comments", sentiment_summary["negative_count"])
+                col4.metric(
+                    "Average Score", f"{sentiment_summary['average_score']:.4f}"
+                )
+                # Display detailed dataframe
+                df = sentiment_summary["df"]
+                st.subheader(
+                    f"Detailed Sentiment Scores per Comment ({len(df)} comments)"
+                )
+                st.write(
+                    "Each comment is scored between -1 (most negative) to +1 (most positive)."
+                )
 
-                st.dataframe(df, use_container_width=True, row_height=100)
+                st.dataframe(
+                    df[["comment", "score", "label"]],
+                    use_container_width=True,
+                    row_height=100,
+                )
