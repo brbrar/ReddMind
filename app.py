@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from scraper import scrape_reddit_post
 from analyser import analyse_comments_sentiment, cluster_comments
-
+import history_manager
 
 st.set_page_config(page_title="ReddMind", layout="centered")
 
@@ -28,6 +28,12 @@ n_clusters = st.sidebar.slider(
     step=1,
     help="Number of clusters to group comments into.",
 )
+
+st.sidebar.header("Analysis History")
+history_df = history_manager.load_history()
+if not history_df.empty:
+    st.sidebar.table(history_df.tail(5))
+
 
 # Input URL
 
@@ -59,21 +65,34 @@ if st.button("Analyse"):
                 )
                 # Display detailed dataframe
                 df = sentiment_summary["df"]
-                st.subheader(
-                    f"Detailed Sentiment Scores per Comment ({len(df)} comments)"
-                )
-                st.write(
-                    "Each comment is scored between -1 (most negative) to +1 (most positive)."
-                )
 
-                st.dataframe(
-                    df[["comment", "score", "label"]],
-                    use_container_width=True,
-                    row_height=100,
-                )
+                if df.empty:
+                    st.warning("No comments available for sentiment analysis.")
+                else:
+                    st.subheader(
+                        f"Detailed Sentiment Scores per Comment ({len(df)} comments)"
+                    )
+                    st.write(
+                        "Each comment is scored between -1 (most negative) to +1 (most positive)."
+                    )
 
-                st.subheader("Comment Clustering")
-                themes = cluster_comments(data["comments"], n_clusters=n_clusters)
+                    st.dataframe(
+                        df[["comment", "score", "label"]],
+                        use_container_width=True,
+                        row_height=100,
+                    )
 
-                for theme in themes:
-                    st.info(theme)
+                    st.subheader("Comment Clustering")
+                    themes = cluster_comments(data["comments"], n_clusters=n_clusters)
+
+                    for theme in themes:
+                        st.info(theme)
+
+                    st.subheader("Sentiment Distribution")
+                    chart_data = df["label"].value_counts()
+                    st.bar_chart(chart_data)
+
+                    # Save analysis history
+                    history_manager.save_history(
+                        data["post_title"], sentiment_summary["verdict"]
+                    )

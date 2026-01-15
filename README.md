@@ -53,5 +53,7 @@ To-do:
     * K-Means groups these vectors into 3 distinct clusters.
     * The top keywords for each cluster are extracted to label the "Themes".
 
-## 📸 Screenshots
-To-do
+## Screenshots
+![Homepage image 1](screenshots/homepage-1.png)
+
+![Homepage image 2](screenshots/homepage-2.png)
