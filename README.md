@@ -8,10 +8,8 @@ Built with Python, Streamlit, Scikit-Learn, and VADER.
 * **Sentiment Analysis:** Uses VADER to classify comments as Positive, Negative, or Neutral.
 * Uses K-Means Clustering to group similar comments and identify the top themes people are discussing.
 * Uses a JSON scraping method to fetch data without API.
-
-To-do:
 * Interactive charts showing sentiment distribution.
-* Automatically saves your recent searches to a CSV file.
+* Automatically saves your recent 5 searches to a CSV file.
 
 ## Installation
 
